@@ -14,7 +14,7 @@ regional_plot_prefix <- "bubble_under18_vs_transport_barriers"
 pop_bucket_plot_prefix <- file.path("plots", "All", "bubble_under18_vs_transport_barriers_pop_bucket")
 pop_bucket_region_plot_prefix <- "bubble_under18_vs_transport_barriers_pop_bucket_region"
 coef_output_csv <- file.path("results", "under18_share_model_coefficients.csv")
-coef_summary_txt <- file.path("results", "under18_share_model_summary.txt")
+coef_summary_md <- file.path("results", "under18_share_model_summary.md")
 urbanicity_csv <- "county_urbanicity.csv" # Optional: must include LocationID + urbanicity
 
 target_measures <- c(
@@ -301,34 +301,48 @@ regional_adjusted <- coef_results |>
   arrange(desc(estimate))
 
 summary_lines <- c(
-  "Under-18 Share and Transportation Barriers: Model Summary",
-  paste0("Date: ", Sys.Date()),
+  "# Summary: Under-18 Share and Transportation Barriers",
   "",
-  "Overall adjusted model (controls for log population):",
+  paste0("**Date:** ", Sys.Date()),
+  "",
+  "## Objective",
+  "Assess whether counties with a higher share of children also report higher adult transportation barriers.",
+  "",
+  "## Key Finding (All Counties, Adjusted Model)",
   paste0(
-    "- Coefficient: ", round(overall_adjusted$estimate, 3),
-    " (95% CI: ", round(overall_adjusted$conf_low, 3),
-    ", ", round(overall_adjusted$conf_high, 3), ")"
+    "- Estimated association: **", round(overall_adjusted$estimate, 2),
+    "**."
   ),
   paste0(
-    "- Interpretation: A 0.10 increase in under18_share is associated with about ",
-    round(overall_adjusted$estimate * 0.10, 2),
-    " percentage points higher transportation barriers, on average."
+    "- Interpretation: a 10-point increase in child share is associated with about **",
+    round(overall_adjusted$estimate * 0.10, 2), " percentage points** higher transportation barriers."
   ),
-  paste0("- Sample size (counties): ", overall_adjusted$n),
-  paste0("- R-squared: ", round(overall_adjusted$r_squared, 3)),
-  "",
-  "Adjusted model by region (sorted by effect size):",
   paste0(
-    "- ", regional_adjusted$region, ": ",
-    round(regional_adjusted$estimate, 3),
-    " (95% CI ", round(regional_adjusted$conf_low, 3), ", ",
-    round(regional_adjusted$conf_high, 3), "; n=", regional_adjusted$n,
-    ", R2=", round(regional_adjusted$r_squared, 3), ")"
-  )
+    "- 95% confidence interval: **", round(overall_adjusted$conf_low, 2),
+    " to ", round(overall_adjusted$conf_high, 2), "**."
+  ),
+  paste0("- Counties included: **", overall_adjusted$n, "**."),
+  paste0("- Model R-squared: **", round(overall_adjusted$r_squared, 3), "**."),
+  "",
+  "## Regional Results (Adjusted Models)",
+  "Larger values indicate a stronger positive association.",
+  paste0(
+    "- **", regional_adjusted$region, "**: ",
+    round(regional_adjusted$estimate, 2),
+    " (range ", round(regional_adjusted$conf_low, 2), " to ",
+    round(regional_adjusted$conf_high, 2), ")"
+  ),
+  "",
+  "## Interpretation",
+  "The data show a consistent positive association: counties with more children tend to report higher transportation barriers among adults.",
+  "",
+  "## Limits",
+  "- This is an association, not proof of cause and effect.",
+  "- The model uses county-level data, so local context can still vary.",
+  "- Other factors beyond population size may also influence barriers."
 )
 
-writeLines(summary_lines, coef_summary_txt)
+writeLines(summary_lines, coef_summary_md)
 
 for (r in regions) {
   regional_data <- bubble_data |>
