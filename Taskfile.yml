@@ -1,0 +1,17 @@
+version: '3'
+
+tasks:
+  run:
+    desc: Run main.R
+    cmds:
+      - Rscript main.R
+
+  lint:
+    desc: Lint main.R with lintr
+    cmds:
+      - Rscript -e "lintr::lint('main.R')"
+
+  'lint:fix':
+    desc: Auto-format main.R with styler
+    cmds:
+      - Rscript -e "styler::style_file('main.R')"
