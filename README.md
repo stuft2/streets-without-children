@@ -13,9 +13,11 @@ In counties where families make up a larger share of the population, transportat
 Across 2,417 counties, we find:
 
 - If the share of children increases by **10 percentage points** (for example, from 20% of the population to 30%),
-- The share of adults reporting transportation barriers increases by about **1.8 percentage points**.
+- Then the share of adults reporting transportation barriers increases by about **2 percentage points**.
 
-That may sound small. But across a county of 100,000 adults, that translates to roughly **1,800 additional adults** facing transportation challenges.
+In Utah County, with roughly half a million adults, that same 10-point difference in the share of children would be associated with nearly 10,000 additional adults facing transportation barriers.
+
+That’s more than half the seating capacity of the Marriott Center filled with adults who struggle to get to work, medical appointments, school drop-offs, and other daily responsibilities.
 
 The pattern is statistically precise: the true increase is very likely between about **1.5 and 2.1 percentage points**.
 
@@ -40,17 +42,19 @@ In other words, in some regions, counties with more children see transportation 
 
 ## Why This Matters
 
-Children do not drive. They depend on adults, shared trips, and infrastructure that supports families.
+Children do not drive. Their ability to participate in daily life depends on adults, safe environments, and transportation systems that make movement possible.
 
-When a county has a higher concentration of children, the transportation system may be under greater strain, especially for households juggling work, school, and caregiving.
+When a county has a higher concentration of children, the overall pattern of travel shifts. More trips are shared, chained together, or coordinated across family members. Daily life involves getting multiple people to multiple places — reliably and safely.
 
-The data suggest that family demographics and adult mobility challenges are connected.
+If adults in those same counties are more likely to face transportation barriers, children are affected as well. Their access to opportunity, independence, and safety is shaped by whether the transportation system works for the households they depend on.
+
+The data suggest that in places with more families, mobility systems may be under greater pressure, with implications not just for adult access, but for how children move through and experience their communities.
 
 ## What This Does *Not* Show
 
--   This does not prove that having more children causes transportation barriers.
--   The analysis is based on county-level averages and individual experiences vary.
--   Other local factors, including land use, transit access, income levels, also shape outcomes.
+- This does not prove that having more children causes transportation barriers.
+- The analysis is based on county-level averages and individual experiences vary.
+- Other local factors, including land use, transit access, income levels, also shape outcomes.
 
 ## Plot Variations
 
