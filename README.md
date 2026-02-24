@@ -70,3 +70,9 @@ The data suggest that family demographics and adult mobility challenges are conn
 - [Northeast plots](plots/Northeast)
 - [South plots](plots/South)
 - [West plots](plots/West)
+
+## AI Disclosure
+
+This repository used AI assistance (OpenAI Codex) to help draft analysis code, generate plot variations, and edit documentation.
+
+Results and interpretations were reviewed by the project author. The reviewer is not a statistician, so findings should be treated as exploratory and independently validated before publication or policy use.
