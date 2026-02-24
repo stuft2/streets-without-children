@@ -2,7 +2,11 @@
 
 **Date:** 2026-02-23
 
+![Combined bubble plot](plots/All/bubble_under18_vs_transport_barriers.png)
+
 In counties where families make up a larger share of the population, transportation challenges are more common.
+
+[See more plot variations](#plot-variations)
 
 ## What the Numbers Mean in Real Terms
 
@@ -47,3 +51,22 @@ The data suggest that family demographics and adult mobility challenges are conn
 -   This does not prove that having more children causes transportation barriers.
 -   The analysis is based on county-level averages and individual experiences vary.
 -   Other local factors, including land use, transit access, income levels, also shape outcomes.
+
+## Plot Variations
+
+### Combined (All Counties)
+
+- [Combined bubble plot](plots/All/bubble_under18_vs_transport_barriers.png)
+- [Population bucket: Q1 Smallest](plots/All/bubble_under18_vs_transport_barriers_pop_bucket_q1_smallest.png)
+- [Population bucket: Q2](plots/All/bubble_under18_vs_transport_barriers_pop_bucket_q2.png)
+- [Population bucket: Q3](plots/All/bubble_under18_vs_transport_barriers_pop_bucket_q3.png)
+- [Population bucket: Q4 Largest](plots/All/bubble_under18_vs_transport_barriers_pop_bucket_q4_largest.png)
+- [Binned means with 95% CI](plots/All/under18_binned_means_transport_barriers.png)
+- [Coefficient plot](plots/All/under18_share_coefficient_plot.png)
+
+### Regional Folders
+
+- [Midwest plots](plots/Midwest)
+- [Northeast plots](plots/Northeast)
+- [South plots](plots/South)
+- [West plots](plots/West)
