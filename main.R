@@ -22,7 +22,7 @@ target_measures <- c(
   ISOLATION = "Social Isolation"
 )
 
-region_levels <- c("Midwest", "Northeast", "Other", "South", "West")
+region_levels <- c("Midwest", "Northeast", "South", "West")
 
 places <- read_csv(input_csv, show_col_types = FALSE)
 
@@ -99,11 +99,11 @@ bubble_data <- core_wide |>
       StateAbbr %in% c(
         "AZ", "CO", "ID", "MT", "NV", "NM", "UT", "WY", "AK", "CA", "HI", "OR", "WA"
       ) ~ "West",
-      TRUE ~ "Other"
+      TRUE ~ NA_character_
     )
   ) |>
   mutate(region = factor(region, levels = region_levels)) |>
-  filter(!is.na(LACKTRPT), !is.na(under18_share), !is.na(total_pop), total_pop > 0) |>
+  filter(!is.na(region), !is.na(LACKTRPT), !is.na(under18_share), !is.na(total_pop), total_pop > 0) |>
   mutate(
     pop_bucket = ntile(total_pop, 4)
   ) |>
