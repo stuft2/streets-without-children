@@ -96,11 +96,14 @@ bubble_data <- core_wide |>
       TRUE ~ "Other"
     )
   ) |>
-  filter(!is.na(LACKTRPT), !is.na(under18_share), !is.na(total_pop), total_pop > 0)
+  filter(!is.na(LACKTRPT), !is.na(under18_share), !is.na(total_pop), total_pop > 0) |>
+  mutate(
+    total_pop_capped = pmin(total_pop, quantile(total_pop, probs = 0.99, na.rm = TRUE))
+  )
 
 bubble_plot <- ggplot(
   bubble_data,
-  aes(x = under18_share, y = LACKTRPT, size = total_pop, color = region)
+  aes(x = under18_share, y = LACKTRPT, size = total_pop_capped, color = region)
 ) +
   geom_point(alpha = 0.6) +
   geom_smooth(
@@ -113,7 +116,11 @@ bubble_plot <- ggplot(
     inherit.aes = FALSE
   ) +
   scale_x_continuous(labels = scales::label_percent(accuracy = 1)) +
-  scale_size_continuous(labels = scales::label_comma()) +
+  scale_size_area(
+    max_size = 18,
+    labels = scales::label_comma(),
+    name = "Total population\n(capped at 99th pct)"
+  ) +
   labs(
     title = "Children Share vs Transportation Barriers (County Level)",
     subtitle = "Bubble size shows total county population",
