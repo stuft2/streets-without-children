@@ -2,7 +2,7 @@
 
 **Date:** 2026-02-23
 
-![Combined bubble plot](plots/All/bubble_under18_vs_transport_barriers.png)
+![Centers for Disease Control and Prevention. PLACES: Local Data for Better Health – County Data. 2025. CDC PLACES. Accessed February 24, 2026. https://data.cdc.gov/500-Cities-Places/PLACES-Local-Data-for-Better-Health-County-Data-20/fu4u-a9bh/about_data.](plots/All/bubble_under18_vs_transport_barriers.png)
 
 In counties where families make up a larger share of the population, transportation challenges are more common.
 
