@@ -8,9 +8,13 @@ input_csv <- "PLACES__Local_Data_for_Better_Health,_County_Data_2024_release_202
 output_long_csv <- "places_filtered_mobility_proxies_long.csv"
 output_wide_csv <- "places_filtered_mobility_proxies_wide.csv"
 bubble_plot_png <- file.path("plots", "All", "bubble_under18_vs_transport_barriers.png")
+binned_means_plot_png <- file.path("plots", "All", "under18_binned_means_transport_barriers.png")
+coef_plot_png <- file.path("plots", "All", "under18_share_coefficient_plot.png")
 regional_plot_prefix <- "bubble_under18_vs_transport_barriers"
 pop_bucket_plot_prefix <- file.path("plots", "All", "bubble_under18_vs_transport_barriers_pop_bucket")
 pop_bucket_region_plot_prefix <- "bubble_under18_vs_transport_barriers_pop_bucket_region"
+coef_output_csv <- file.path("results", "under18_share_model_coefficients.csv")
+coef_summary_txt <- file.path("results", "under18_share_model_summary.txt")
 urbanicity_csv <- "county_urbanicity.csv" # Optional: must include LocationID + urbanicity
 
 target_measures <- c(
@@ -147,6 +151,7 @@ bubble_plot <- ggplot(
   theme_minimal(base_size = 12)
 
 dir.create(file.path("plots", "All"), recursive = TRUE, showWarnings = FALSE)
+dir.create("results", recursive = TRUE, showWarnings = FALSE)
 
 ggsave(
   filename = bubble_plot_png,
@@ -156,7 +161,175 @@ ggsave(
   dpi = 300
 )
 
+binned_data <- bubble_data |>
+  mutate(under18_decile = ntile(under18_share, 10)) |>
+  group_by(under18_decile) |>
+  summarise(
+    under18_mid = mean(under18_share, na.rm = TRUE),
+    lacktrpt_mean = mean(LACKTRPT, na.rm = TRUE),
+    lacktrpt_sd = sd(LACKTRPT, na.rm = TRUE),
+    n = dplyr::n(),
+    se = lacktrpt_sd / sqrt(n),
+    ci_low = lacktrpt_mean - 1.96 * se,
+    ci_high = lacktrpt_mean + 1.96 * se,
+    .groups = "drop"
+  )
+
+binned_means_plot <- ggplot(
+  binned_data,
+  aes(x = under18_mid, y = lacktrpt_mean)
+) +
+  geom_line(color = "gray35", linewidth = 0.8) +
+  geom_pointrange(
+    aes(ymin = ci_low, ymax = ci_high),
+    color = "steelblue4"
+  ) +
+  scale_x_continuous(labels = scales::label_percent(accuracy = 1)) +
+  labs(
+    title = "Mean Transportation Barriers by Child-Share Decile",
+    subtitle = "Points are county-decile means; bars are 95% confidence intervals",
+    x = "Share of population under age 18 (decile midpoint)",
+    y = "Mean transportation barriers (% of adults)"
+  ) +
+  theme_minimal(base_size = 12)
+
+ggsave(
+  filename = binned_means_plot_png,
+  plot = binned_means_plot,
+  width = 11,
+  height = 7,
+  dpi = 300
+)
+
+extract_under18_coef <- function(model, model_name, region_name) {
+  coef_mat <- summary(model)$coefficients
+  if (!"under18_share" %in% rownames(coef_mat)) {
+    return(tibble())
+  }
+
+  est <- unname(coef_mat["under18_share", "Estimate"])
+  se <- unname(coef_mat["under18_share", "Std. Error"])
+  n_obs <- length(stats::fitted(model))
+  r2 <- summary(model)$r.squared
+
+  tibble(
+    model = model_name,
+    region = region_name,
+    estimate = est,
+    std_error = se,
+    conf_low = est - 1.96 * se,
+    conf_high = est + 1.96 * se,
+    n = n_obs,
+    r_squared = r2
+  )
+}
+
 regions <- sort(unique(bubble_data$region))
+coef_rows <- list()
+coef_rows[[length(coef_rows) + 1]] <- extract_under18_coef(
+  lm(LACKTRPT ~ under18_share, data = bubble_data),
+  model_name = "Unadjusted",
+  region_name = "All"
+)
+coef_rows[[length(coef_rows) + 1]] <- extract_under18_coef(
+  lm(LACKTRPT ~ under18_share + log(total_pop), data = bubble_data),
+  model_name = "Adjusted (log population)",
+  region_name = "All"
+)
+
+for (r in regions) {
+  regional_data <- bubble_data |>
+    filter(region == r)
+
+  if (nrow(regional_data) < 10) {
+    next
+  }
+
+  coef_rows[[length(coef_rows) + 1]] <- extract_under18_coef(
+    lm(LACKTRPT ~ under18_share + log(total_pop), data = regional_data),
+    model_name = "Adjusted (log population)",
+    region_name = as.character(r)
+  )
+}
+
+coef_results <- bind_rows(coef_rows) |>
+  mutate(
+    label = if_else(
+      region == "All",
+      paste(region, model, sep = " - "),
+      paste(region, "Region Adjusted", sep = " - ")
+    )
+  )
+
+write_csv(coef_results, coef_output_csv)
+
+coef_plot_data <- coef_results |>
+  mutate(label = forcats::fct_reorder(label, estimate))
+
+coef_plot <- ggplot(
+  coef_plot_data,
+  aes(x = estimate, y = label, color = region)
+) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray55") +
+  geom_segment(
+    aes(x = conf_low, xend = conf_high, y = label, yend = label),
+    linewidth = 0.8
+  ) +
+  geom_point(size = 2.2) +
+  labs(
+    title = "Estimated Effect of Child Share on Transportation Barriers",
+    subtitle = "Point estimates with 95% confidence intervals",
+    x = "Coefficient for under18_share",
+    y = NULL,
+    color = "Model/region"
+  ) +
+  theme_minimal(base_size = 12)
+
+ggsave(
+  filename = coef_plot_png,
+  plot = coef_plot,
+  width = 11,
+  height = 7,
+  dpi = 300
+)
+
+overall_adjusted <- coef_results |>
+  filter(region == "All", model == "Adjusted (log population)")
+
+regional_adjusted <- coef_results |>
+  filter(region != "All") |>
+  arrange(desc(estimate))
+
+summary_lines <- c(
+  "Under-18 Share and Transportation Barriers: Model Summary",
+  paste0("Date: ", Sys.Date()),
+  "",
+  "Overall adjusted model (controls for log population):",
+  paste0(
+    "- Coefficient: ", round(overall_adjusted$estimate, 3),
+    " (95% CI: ", round(overall_adjusted$conf_low, 3),
+    ", ", round(overall_adjusted$conf_high, 3), ")"
+  ),
+  paste0(
+    "- Interpretation: A 0.10 increase in under18_share is associated with about ",
+    round(overall_adjusted$estimate * 0.10, 2),
+    " percentage points higher transportation barriers, on average."
+  ),
+  paste0("- Sample size (counties): ", overall_adjusted$n),
+  paste0("- R-squared: ", round(overall_adjusted$r_squared, 3)),
+  "",
+  "Adjusted model by region (sorted by effect size):",
+  paste0(
+    "- ", regional_adjusted$region, ": ",
+    round(regional_adjusted$estimate, 3),
+    " (95% CI ", round(regional_adjusted$conf_low, 3), ", ",
+    round(regional_adjusted$conf_high, 3), "; n=", regional_adjusted$n,
+    ", R2=", round(regional_adjusted$r_squared, 3), ")"
+  )
+)
+
+writeLines(summary_lines, coef_summary_txt)
+
 for (r in regions) {
   regional_data <- bubble_data |>
     filter(region == r)
